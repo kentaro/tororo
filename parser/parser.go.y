@@ -15,11 +15,12 @@ func Parse(io io.Reader) Expr {
 %}
 
 %union{
+    stmt  Stmt
     expr  Expr
     token Token
 }
 
-%type<expr> program
+%type<stmt> program
 %type<expr> expr
 
 // keywords

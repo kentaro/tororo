@@ -18,6 +18,7 @@ func Parse(io io.Reader) Expr {
 //line parser.go.y:17
 type yySymType struct {
 	yys   int
+	stmt  Stmt
 	expr  Expr
 	token Token
 }
@@ -58,7 +59,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.go.y:90
+//line parser.go.y:91
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -478,68 +479,68 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:42
+		//line parser.go.y:43
 		{
-			yyVAL.expr = yyDollar[1].expr
-			yylex.(*Lexer).result = yyVAL.expr
+			yyVAL.stmt = yyDollar[1].expr
+			yylex.(*Lexer).result = yyVAL.stmt
 		}
 	case 2:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:49
+		//line parser.go.y:50
 		{
 			yyVAL.expr = Number{Literal: yyDollar[1].token.Literal}
 		}
 	case 3:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:53
+		//line parser.go.y:54
 		{
 			yyVAL.expr = String{Literal: yyDollar[1].token.Literal}
 		}
 	case 4:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:57
+		//line parser.go.y:58
 		{
 			yyVAL.expr = true
 		}
 	case 5:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:61
+		//line parser.go.y:62
 		{
 			yyVAL.expr = false
 		}
 	case 6:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:65
+		//line parser.go.y:66
 		{
 			yyVAL.expr = nil
 		}
 	case 7:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:69
+		//line parser.go.y:70
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '+', Right: yyDollar[3].expr}
 		}
 	case 8:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:73
+		//line parser.go.y:74
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '-', Right: yyDollar[3].expr}
 		}
 	case 9:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:77
+		//line parser.go.y:78
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '*', Right: yyDollar[3].expr}
 		}
 	case 10:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:81
+		//line parser.go.y:82
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '/', Right: yyDollar[3].expr}
 		}
 	case 11:
 		yyDollar = yyS[yypt-5 : yypt+1]
-		//line parser.go.y:85
+		//line parser.go.y:86
 		{
 			// TODO
 			yyVAL.expr = If{Expr: yyDollar[4].expr}

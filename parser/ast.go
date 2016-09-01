@@ -1,5 +1,6 @@
 package parser
 
+type Stmt interface{}
 type Expr interface{}
 
 type Token struct {
