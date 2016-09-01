@@ -9,7 +9,7 @@ import (
 )
 
 func Parse(io io.Reader) Expr {
-	l := &Lexer{}
+	l := NewLexer()
 	l.Init(io)
 	yyParse(l)
 	return l.result
@@ -18,21 +18,39 @@ func Parse(io io.Reader) Expr {
 //line parser.go.y:17
 type yySymType struct {
 	yys   int
-	token Token
 	expr  Expr
+	token Token
 }
 
-const NUMBER = 57346
+const FUNC = 57346
+const CLASS = 57347
+const IF = 57348
+const TRUE = 57349
+const FALSE = 57350
+const NIL = 57351
+const IDENTIFIER = 57352
+const NUMBER = 57353
+const STRING = 57354
 
 var yyToknames = [...]string{
 	"$end",
 	"error",
 	"$unk",
+	"FUNC",
+	"CLASS",
+	"IF",
+	"TRUE",
+	"FALSE",
+	"NIL",
+	"IDENTIFIER",
 	"NUMBER",
+	"STRING",
 	"'+'",
 	"'-'",
 	"'*'",
 	"'/'",
+	"'{'",
+	"'}'",
 }
 var yyStatenames = [...]string{}
 
@@ -40,7 +58,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.go.y:60
+//line parser.go.y:90
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -49,45 +67,52 @@ var yyExca = [...]int{
 	-2, 0,
 }
 
-const yyNprod = 7
+const yyNprod = 12
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 13
+const yyLast = 31
 
 var yyAct = [...]int{
 
-	4, 5, 6, 7, 2, 6, 7, 3, 1, 8,
-	9, 10, 11,
+	2, 9, 10, 11, 12, 1, 20, 11, 12, 13,
+	14, 15, 16, 17, 9, 10, 11, 12, 18, 19,
+	9, 10, 11, 12, 8, 5, 6, 7, 0, 3,
+	4,
 }
 var yyPact = [...]int{
 
-	3, -1000, -5, -1000, 3, 3, 3, 3, -2, -2,
-	-1000, -1000,
+	18, -1000, 7, -1000, -1000, -1000, -1000, -1000, 18, 18,
+	18, 18, 18, 1, -8, -8, -1000, -1000, 18, -12,
+	-1000,
 }
 var yyPgo = [...]int{
 
-	0, 8, 4,
+	0, 5, 0,
 }
 var yyR1 = [...]int{
 
-	0, 1, 2, 2, 2, 2, 2,
+	0, 1, 2, 2, 2, 2, 2, 2, 2, 2,
+	2, 2,
 }
 var yyR2 = [...]int{
 
-	0, 1, 1, 3, 3, 3, 3,
+	0, 1, 1, 1, 1, 1, 1, 3, 3, 3,
+	3, 5,
 }
 var yyChk = [...]int{
 
-	-1000, -1, -2, 4, 5, 6, 7, 8, -2, -2,
-	-2, -2,
+	-1000, -1, -2, 11, 12, 7, 8, 9, 6, 13,
+	14, 15, 16, -2, -2, -2, -2, -2, 17, -2,
+	18,
 }
 var yyDef = [...]int{
 
-	0, -2, 1, 2, 0, 0, 0, 0, 3, 4,
-	5, 6,
+	0, -2, 1, 2, 3, 4, 5, 6, 0, 0,
+	0, 0, 0, 0, 7, 8, 9, 10, 0, 0,
+	11,
 }
 var yyTok1 = [...]int{
 
@@ -95,11 +120,20 @@ var yyTok1 = [...]int{
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 7, 5, 3, 6, 3, 8,
+	3, 3, 15, 13, 3, 14, 3, 16, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 17, 3, 18,
 }
 var yyTok2 = [...]int{
 
-	2, 3, 4,
+	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+	12,
 }
 var yyTok3 = [...]int{
 	0,
@@ -444,40 +478,71 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:33
+		//line parser.go.y:42
 		{
 			yyVAL.expr = yyDollar[1].expr
 			yylex.(*Lexer).result = yyVAL.expr
 		}
 	case 2:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line parser.go.y:40
+		//line parser.go.y:49
 		{
 			yyVAL.expr = Number{Literal: yyDollar[1].token.Literal}
 		}
 	case 3:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line parser.go.y:53
+		{
+			yyVAL.expr = String{Literal: yyDollar[1].token.Literal}
+		}
+	case 4:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line parser.go.y:57
+		{
+			yyVAL.expr = true
+		}
+	case 5:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line parser.go.y:61
+		{
+			yyVAL.expr = false
+		}
+	case 6:
+		yyDollar = yyS[yypt-1 : yypt+1]
+		//line parser.go.y:65
+		{
+			yyVAL.expr = nil
+		}
+	case 7:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:44
+		//line parser.go.y:69
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '+', Right: yyDollar[3].expr}
 		}
-	case 4:
+	case 8:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:48
+		//line parser.go.y:73
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '-', Right: yyDollar[3].expr}
 		}
-	case 5:
+	case 9:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:52
+		//line parser.go.y:77
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '*', Right: yyDollar[3].expr}
 		}
-	case 6:
+	case 10:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line parser.go.y:56
+		//line parser.go.y:81
 		{
 			yyVAL.expr = BinOp{Left: yyDollar[1].expr, Operator: '/', Right: yyDollar[3].expr}
+		}
+	case 11:
+		yyDollar = yyS[yypt-5 : yypt+1]
+		//line parser.go.y:85
+		{
+			// TODO
+			yyVAL.expr = If{Expr: yyDollar[4].expr}
 		}
 	}
 	goto yystack /* stack new state and value */

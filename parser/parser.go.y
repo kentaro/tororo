@@ -6,7 +6,7 @@ import (
 )
 
 func Parse(io io.Reader) Expr {
-    l := &Lexer{}
+    l := NewLexer()
     l.Init(io)
     yyParse(l)
     return l.result
@@ -15,16 +15,25 @@ func Parse(io io.Reader) Expr {
 %}
 
 %union{
-    token Token
     expr  Expr
+    token Token
 }
 
-%type<expr>   program
-%type<expr>   expr
-%token<token> NUMBER
+%type<expr> program
+%type<expr> expr
 
-%left '+', '-'
-%left '*', '/'
+// keywords
+%token<token> FUNC CLASS
+%token<token> IF
+%token<token> TRUE FALSE NIL
+%token<token> IDENTIFIER
+
+// types
+%token<token> NUMBER
+%token<token> STRING
+
+%left  '+', '-'
+%left  '*', '/'
 
 %%
 
@@ -39,6 +48,22 @@ expr
     : NUMBER
     {
         $$ = Number{Literal: $1.Literal}
+    }
+    | STRING
+    {
+        $$ = String{Literal: $1.Literal}
+    }
+    | TRUE
+    {
+        $$ = true
+    }
+    | FALSE
+    {
+        $$ = false
+    }
+    | NIL
+    {
+        $$ = nil
     }
     | expr '+' expr
     {
@@ -55,6 +80,11 @@ expr
     | expr '/' expr
     {
         $$ = BinOp{Left: $1, Operator: '/', Right: $3}
+    }
+    | IF expr '{' expr '}'
+    {
+        // TODO
+        $$ = If{Expr: $4}
     }
 
 %%
