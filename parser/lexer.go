@@ -15,7 +15,7 @@ var keywords = map[string]int{
 
 type Lexer struct {
 	scanner.Scanner
-	result Expr
+	result []Stmt
 	line   int
 	col    int
 }

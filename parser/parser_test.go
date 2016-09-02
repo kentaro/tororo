@@ -7,48 +7,74 @@ import (
 
 var tests = []struct {
 	src string
-	ast interface{}
+	ast []Stmt
 }{
 	{
 		"9999",
-		Number{
-			Literal: "9999",
+		[]Stmt{
+			NumberExpr{
+				Literal: "9999",
+			},
 		},
 	},
 	{
 		"9.999",
-		Number{
-			Literal: "9.999",
+		[]Stmt{
+			NumberExpr{
+				Literal: "9.999",
+			},
 		},
 	},
 	{
 		"1 + 1",
-		BinOp{
-			Left:     Number{Literal: "1"},
-			Operator: '+',
-			Right:    Number{Literal: "1"},
+		[]Stmt{
+			BinOpExpr{
+				Left:     NumberExpr{Literal: "1"},
+				Operator: '+',
+				Right:    NumberExpr{Literal: "1"},
+			},
 		},
 	},
 	{
 		`"foo \"bar\" baz"`,
-		String{
-			Literal: `"foo \"bar\" baz"`,
+		[]Stmt{
+			StringExpr{
+				Literal: `"foo \"bar\" baz"`,
+			},
 		},
 	},
-	{
-		`
-		if true {
-			"got true"
-		}`,
-		If{Expr: String{Literal: "\"got true\""}},
-	},
+	// TODO: test
+	// {
+	// 	`
+	// 	class Foo {
+	// 		"got true"
+	// 	}`,
+	// 	[]Stmt{
+	// 		ClassStmt{
+	// 			Name: "Foo",
+	// 			Stmts: []Stmt{[]Expr{StringExpr{Literal: "got true"}}},
+	// 		},
+	// 	},
+	// },
 }
 
 func TestParse(t *testing.T) {
 	for i, test := range tests {
-		res := Parse(strings.NewReader(test.src))
-		if res != test.ast {
-			t.Errorf("case %d:\n\n%s\n\nactual:\t\t%#v\nexpected:\t%#v", i, test.src, res, test.ast)
+		stmts := Parse(strings.NewReader(test.src))
+
+		for j, stmt := range stmts {
+			switch stmt.(type) {
+			case []Expr:
+				for _, expr := range stmt.([]Expr) {
+					if expr != test.ast[j] {
+						t.Errorf("case %d:\n\n%s\n\nactual:\t\t%#v\nexpected:\t%#v", i, test.src, expr, test.ast[j])
+					}
+				}
+			default:
+				if stmt != test.ast[j] {
+					t.Errorf("case %d:\n\n%s\n\nactual:\t\t%#v\nexpected:\t%#v", i, test.src, stmt, test.ast[j])
+				}
+			}
 		}
 	}
 }

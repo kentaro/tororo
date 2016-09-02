@@ -5,7 +5,7 @@ import (
     "io"
 )
 
-func Parse(io io.Reader) Expr {
+func Parse(io io.Reader) []Stmt {
     l := NewLexer()
     l.Init(io)
     yyParse(l)
@@ -15,13 +15,18 @@ func Parse(io io.Reader) Expr {
 %}
 
 %union{
+    stmts []Stmt
     stmt  Stmt
+    exprs []Expr
     expr  Expr
     token Token
 }
 
-%type<stmt> program
-%type<expr> expr
+%type<stmts> program
+%type<stmts> stmts
+%type<stmt>  stmt
+%type<exprs> exprs
+%type<expr>  expr
 
 // keywords
 %token<token> FUNC CLASS
@@ -39,20 +44,72 @@ func Parse(io io.Reader) Expr {
 %%
 
 program
-    : expr
+    :
+    {
+        $$ = nil
+    }
+    | stmts
     {
         $$ = $1
         yylex.(*Lexer).result = $$
     }
 
+stmts
+    : stmt
+    {
+        $$ = []Stmt{$1}
+    }
+    | stmts stmt
+    {
+        $$ = append($1, $2)
+    }
+
+stmt
+    : exprs
+    {
+        $$ = $1
+    }
+    | FUNC expr '(' /* TODO: VAR */ ')' '{' stmts '}'
+    {
+        $$ = FuncStmt{
+            Name:  $2.(IdentifierExpr).Literal,
+            Args:  []string{},
+            Stmts: $6,
+        }
+    }
+    | CLASS expr '{' stmts '}'
+    {
+        $$ = ClassStmt{
+            Name:  $2.(IdentifierExpr).Literal,
+            Stmts: $4,
+        }
+    }
+    | IF expr '{' stmts '}'
+    {
+        $$ = IfStmt{
+            Cond: $2,
+            Then: $4,
+        }
+    }
+
+exprs
+    : expr
+    {
+        $$ = []Expr{$1}
+    }
+    | exprs expr
+    {
+        $$ = append($1, $2)
+    }
+
 expr
     : NUMBER
     {
-        $$ = Number{Literal: $1.Literal}
+        $$ = NumberExpr{Literal: $1.Literal}
     }
     | STRING
     {
-        $$ = String{Literal: $1.Literal}
+        $$ = StringExpr{Literal: $1.Literal}
     }
     | TRUE
     {
@@ -66,26 +123,25 @@ expr
     {
         $$ = nil
     }
+    | IDENTIFIER
+    {
+        $$ = IdentifierExpr{Literal: $1.Literal}
+    }
     | expr '+' expr
     {
-        $$ = BinOp{Left: $1, Operator: '+', Right: $3}
+        $$ = BinOpExpr{Left: $1, Operator: '+', Right: $3}
     }
     | expr '-' expr
     {
-        $$ = BinOp{Left: $1, Operator: '-', Right: $3}
+        $$ = BinOpExpr{Left: $1, Operator: '-', Right: $3}
     }
     | expr '*' expr
     {
-        $$ = BinOp{Left: $1, Operator: '*', Right: $3}
+        $$ = BinOpExpr{Left: $1, Operator: '*', Right: $3}
     }
     | expr '/' expr
     {
-        $$ = BinOp{Left: $1, Operator: '/', Right: $3}
-    }
-    | IF expr '{' expr '}'
-    {
-        // TODO
-        $$ = If{Expr: $4}
+        $$ = BinOpExpr{Left: $1, Operator: '/', Right: $3}
     }
 
 %%

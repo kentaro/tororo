@@ -1,28 +1,44 @@
 package parser
 
 type Stmt interface{}
+
+type FuncStmt struct {
+	Name  string
+	Args  []string
+	Stmts []Stmt
+}
+
+type ClassStmt struct {
+	Name  string
+	Stmts []Stmt
+}
+
+type IfStmt struct {
+	Cond Expr
+	Then []Stmt
+}
+
 type Expr interface{}
 
-type Token struct {
-	Token   int
+type NumberExpr struct {
 	Literal string
 }
 
-type Number struct {
+type StringExpr struct {
 	Literal string
 }
 
-type String struct {
+type IdentifierExpr struct {
 	Literal string
 }
 
-type BinOp struct {
+type BinOpExpr struct {
 	Left     Expr
 	Operator rune
 	Right    Expr
 }
 
-// TODO: must be moved to statements
-type If struct {
-	Expr Expr
+type Token struct {
+	Token   int
+	Literal string
 }
