@@ -1,5 +1,12 @@
 package vm
 
+var insnsMap = map[string](func(int, int) int){
+	"+": Add,
+	"-": Subtract,
+	"*": Multiply,
+	"/": Divide,
+}
+
 func Add(left, right int) int {
 	return left + right
 }

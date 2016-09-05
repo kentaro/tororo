@@ -5,13 +5,6 @@ import (
 	"github.com/kentaro/tororo/parser"
 )
 
-var insnsMap = map[string](func(int, int) int){
-	"+": Add,
-	"-": Subtract,
-	"*": Multiply,
-	"/": Divide,
-}
-
 func Run(e parser.Expr) int {
 	return eval(e)
 }
