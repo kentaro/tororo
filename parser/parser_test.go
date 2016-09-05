@@ -27,6 +27,14 @@ var tests = []struct {
 		},
 	},
 	{
+		"foo",
+		[]Stmt{
+			[]Expr{IdentifierExpr{
+				Literal: "foo",
+			}},
+		},
+	},
+	{
 		"1 + 1",
 		[]Stmt{
 			[]Expr{BinOpExpr{
