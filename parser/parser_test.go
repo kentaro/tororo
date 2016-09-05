@@ -37,6 +37,36 @@ var tests = []struct {
 		},
 	},
 	{
+		"1 - 1",
+		[]Stmt{
+			[]Expr{BinOpExpr{
+				Left:     NumberExpr{Literal: "1"},
+				Operator: '-',
+				Right:    NumberExpr{Literal: "1"},
+			}},
+		},
+	},
+	{
+		"1 * 1",
+		[]Stmt{
+			[]Expr{BinOpExpr{
+				Left:     NumberExpr{Literal: "1"},
+				Operator: '*',
+				Right:    NumberExpr{Literal: "1"},
+			}},
+		},
+	},
+	{
+		"1 / 1",
+		[]Stmt{
+			[]Expr{BinOpExpr{
+				Left:     NumberExpr{Literal: "1"},
+				Operator: '/',
+				Right:    NumberExpr{Literal: "1"},
+			}},
+		},
+	},
+	{
 		`"foo \"bar\" baz"`,
 		[]Stmt{
 			[]Expr{StringExpr{
@@ -46,13 +76,50 @@ var tests = []struct {
 	},
 	{
 		`
+		func foo() {
+			"bar"
+			"baz"
+		}`,
+		[]Stmt{
+			FuncStmt{
+				Name: "foo",
+				Args: []string{},
+				Stmts: []Stmt{[]Expr{
+					StringExpr{Literal: "\"bar\""},
+					StringExpr{Literal: "\"baz\""},
+				}},
+			},
+		},
+	},
+	{
+		`
 		class Foo {
-			"got true"
+			"bar"
+			"baz"
 		}`,
 		[]Stmt{
 			ClassStmt{
 				Name: "Foo",
-				Stmts: []Stmt{[]Expr{StringExpr{Literal: "\"got true\""}}},
+				Stmts: []Stmt{[]Expr{
+					StringExpr{Literal: "\"bar\""},
+					StringExpr{Literal: "\"baz\""},
+				}},
+			},
+		},
+	},
+	{
+		`
+		if true {
+			"bar"
+			"baz"
+		}`,
+		[]Stmt{
+			IfStmt{
+				Cond: true,
+				Then: []Stmt{[]Expr{
+					StringExpr{Literal: "\"bar\""},
+					StringExpr{Literal: "\"baz\""},
+				}},
 			},
 		},
 	},
